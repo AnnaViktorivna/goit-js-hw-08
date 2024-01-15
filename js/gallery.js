@@ -92,12 +92,41 @@ function render() {
 render();
 
 container.addEventListener("click", (e) => {
-  const { original, preview, description } = img;
+  e.preventDefault();
+  if (e.target === e.currentTarget) return;
+  const linkBigImg = e.target.dataset.source;
+  console.log("Link for a big image:", linkBigImg);
 
-  const target = e.target;
-  if (e.target === e.currentTarget) {
-    e.preventDefault();
-    const linkBigImg = target.dataset.original;
-    console.log("Link for a big image:", linkBigImg);
+  const instance = basicLightbox.create(
+    `
+  <div class="modal">
+  <img
+  src="${linkBigImg}"
+  alt="image"
+/>
+  </div>
+	
+`,
+    {
+      /*
+       * Function that gets executed before the lightbox will be shown.
+       * Returning false will prevent the lightbox from showing.
+       */
+      onShow: (instance) => {
+        document.addEventListener("keydown", modalClose);
+      },
+      /*
+       * Function that gets executed before the lightbox closes.
+       * Returning false will prevent the lightbox from closing.
+       */
+      onClose: (instance) => {
+        document.removeEventListener("keydown", modalClose);
+      },
+    }
+  );
+
+  function modalClose(e) {
+    if (e.code === "Escape") instance.close();
   }
+  instance.show();
 });
